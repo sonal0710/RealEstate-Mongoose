@@ -1,0 +1,22 @@
+{
+  "name": "real-estate",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "cors": "^2.8.4",
+    "express": "~4.16.0",
+    "express-validation": "^1.0.2",
+    "joi": "^13.1.2",
+    "jsonwebtoken": "^8.3.0",
+    "moment": "^2.22.0",
+    "mysql": "^2.15.0",
+    "mysql2": "^2.1.0",
+    "nodemon": "^2.0.4",
+    "sequelize": "^4.38.0",
+    "winston": "^2.4.1"
+  }
+}

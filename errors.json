@@ -1,0 +1,8 @@
+{
+  "400": {
+    "isSuccess": false,
+    "status": 400,
+    "description": "",
+    "message": "bad_request"
+  }
+}
