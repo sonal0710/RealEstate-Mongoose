@@ -1,27 +1,31 @@
-'use strict';
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 
-module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define('User', {
-    phone: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
-    password: {
-      type: DataTypes.STRING
-    },
-    username: {
-      type: DataTypes.STRING
-    }
-  });
+const bcryptService = require('../services/BcryptService');
 
-  User.associate = (models) => {
-    // models.User.hasMany(models.Post);
-  };
+/**
+ * User schema
+*/
 
+const UserSchema = new Schema({
+  phone: { type: String, required: true },
+  username: { type: String, default: '' },
+  password: { type: String, required: true }
+});
 
-
-
-  return User;
-
+UserSchema.methods.isPasswordMatch = async function (password) {
+  const user = this;
+  return bcryptService().comparePassword(password, user.password);
 };
+
+UserSchema.pre('save', async function (next) {
+  const user = this;
+  if (user.isModified('password')) {
+    user.password = await bcryptService().password(user.password);
+  }
+  next();
+});
+
+const User = mongoose.model('Users', UserSchema);
+
+module.exports = User;

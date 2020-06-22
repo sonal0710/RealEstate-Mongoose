@@ -1,14 +1,12 @@
 const jwt = require('jsonwebtoken');
 
+const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY || 'secret';
+const secret = JWT_SECRET_KEY;
 
-// TODO secret
-const JWT_SECRET_KEY = process.env.JWT_SECRET || 'secret';
-const secret = process.env.NODE_ENV === 'production' ? JWT_SECRET_KEY : 'secret';
-
-const model = require('../models');
+const User = require('../models/UserModel');
 
 const authService = () => {
-  const issue = (payload) => jwt.sign(payload, secret, {expiresIn: "100h"});
+  const issue = (payload) => jwt.sign(payload, secret, {expiresIn: "1h"});
   const verify = (token, done) => {
     jwt.verify(token, secret, {}, async (err, decoded) => {
       if (err) {
@@ -21,10 +19,8 @@ const authService = () => {
             return done(err.message);
         }
       } else {
-        const user = await model.User.findOne({
-          where: {
-            phone: decoded.phone
-          }
+        const user = await User.findOne({
+            'phone': decoded.phone
         });
         return user ? done(null, user.id) : done(401);
       }

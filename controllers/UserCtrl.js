@@ -1,15 +1,13 @@
 'use strict';
 
-const model = require('../models');
+const User = require('../models/UserModel');
 
 const authService = require('../services/AuthService');
 const userServcie = require('../services/UserService');
-const bcryptService = require('../services/BcryptService');
 
 const UserController = () => {
 
   const signup = async (req, res, next) => {
-    console.log(req.body);
     let result;
 
     try {
@@ -17,7 +15,7 @@ const UserController = () => {
       const userData = {
         phone: req.body.phone,
         username: req.body.username,
-        password: bcryptService().password(req.body.password)
+        password: req.body.password
       };
 
       await userServcie().isUsedPhone(userData.phone);
@@ -37,12 +35,15 @@ const UserController = () => {
       return next(error);
     }
 
-    return res.r(result);
+    return res.status(200).json({
+      isSuccess: true,
+      message: 'Success',
+      result
+    });
 
   };
 
   const signin = async (req, res, next) => {
-
     let result;
 
     try {
@@ -50,30 +51,34 @@ const UserController = () => {
       const userData = {
         phone: req.body.phone
       };
-
+      
       const user = await userServcie().signIn(userData);
       
-      if (!user) {
-        return res.status(400).json({ msg: 'Bad Request: User not found' });
+      if (!user || !(await user.isPasswordMatch(req.body.password))) {
+        return res.status(400).json({ 
+          isSuccess: false,
+          message: req.__('400') });
       }
 
-      if (bcryptService().comparePassword(req.body.password, user.password)) {
-        const token = authService().issue({id: user.id, phone: user.phone});
+      const token = authService().issue({id: user.id, phone: user.phone});
 
-        result = {
-          profile: {
-            id: user.id,
-            phone: user.phone,
-            username: user.username
-          }, token
-      }
+      result = {
+        profile: {
+          id: user.id,
+          phone: user.phone,
+          username: user.username
+        }, token
       }
 
     } catch (error) {
       return next(error);
     }
 
-    return res.r(result);
+    return res.status(200).json({
+      isSuccess: true,
+      message: 'Success',
+      result
+    })
 
   };
 
@@ -82,19 +87,16 @@ const UserController = () => {
     let result;
 
     try {
-
-      result = await model.User.findOne({
-        where: {
-          id: req.userId
-        }
-      });
-
-
+      result = await User.findById(req.userId);
     } catch (error) {
       return next(error);
     }
 
-    return res.r(result);
+    return res.status(200).json({
+      isSuccess: true,
+      message: 'Success',
+      result
+    })
   };
 
 
@@ -112,7 +114,10 @@ const UserController = () => {
       return next(error);
     }
 
-    return res.r();
+    return res.status(200).json({
+      isSuccess: true,
+      message: 'Success'
+    })
   };
 
   return {
