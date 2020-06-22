@@ -1,5 +1,6 @@
 const express = require('express');
 const path = require('path');
+const logger = require('winston');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const model = require('./models');
@@ -21,7 +22,7 @@ require('./routes')(app);
 const PORT = process.env.PORT;
 
 app.listen(PORT, () => {
-  console.info(`[ApiServer] Listening on Port ${PORT}`);
+  logger.info(`[ApiServer] Listening on Port ${PORT}`);
 });
 
 module.exports = app;
